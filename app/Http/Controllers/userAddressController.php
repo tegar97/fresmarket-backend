@@ -22,7 +22,7 @@ class userAddressController extends Controller
             'city' => ['required', 'string', 'max:255'],
             'districts' => ['required', 'string', 'max:255'],
             'phoneNumber' => ['required', 'string', 'max:255'],
-        
+
         ]);
         if ($validator->fails()) {
             return response()->json(
@@ -69,7 +69,7 @@ class userAddressController extends Controller
         $getAllAdress = userAddress::where('users_id',$user['id'])->get();
 
 
-        return ResponseFormatter::success($getAllAdress,200);
+        return ResponseFormatter::success($getAllAdress,'success');
     }
     public function getMainAddress() {
         $user = Auth::user();
@@ -79,10 +79,10 @@ class userAddressController extends Controller
         }
 
 
-        $getAllAdress = userAddress::where('users_id',$user['id'])->where('isMainAddress',1)->first();
+        $getSelectedAddress = userAddress::where('users_id',$user['id'])->where('isMainAddress',1)->first();
 
+        return ResponseFormatter::success($getSelectedAddress, 'success');
 
-        return ResponseFormatter::success($getAllAdress,200);
     }
     public function ChangeMainAddress(Request $request) {
         $user = Auth::user();

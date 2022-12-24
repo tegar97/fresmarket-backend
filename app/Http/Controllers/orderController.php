@@ -78,7 +78,7 @@ class orderController extends Controller
         );
 
         $response = \Midtrans\CoreApi::charge($transaction_data);
-        //Add to payment 
+        //Add to payment
         $expire = Carbon::now('Asia/Jakarta')->addDays(1)->timestamp;
         $dateString = Carbon::now('Asia/Jakarta')->addDays(1);
         $payment = paymentModel::create([
@@ -108,8 +108,8 @@ class orderController extends Controller
                     'amount' => $itemList['product']['price'] * $itemList['quantity'],
             ]);
 
-            
-            
+
+
         }
         return ResponseFormatter::success($response, 'berhasil');
     }
@@ -153,6 +153,7 @@ class orderController extends Controller
         }
 
         $itemTotal = [];
+        $totalPrice = 0;
         foreach ($request->item_list as $itemList) {
             $itemTotal[] =  array(
                 'id' => $itemList['product']['id'],
@@ -160,7 +161,28 @@ class orderController extends Controller
                 'quantity' => $itemList['quantity'],
                 'name' =>  $itemList['product']['name'],
             );
+            $totalPrice += $itemList['product']['price'] * $itemList['quantity'];
         };
+
+        if ($request->promo != null) {
+            $promo = array(
+                'id' => $request->promo['id'],
+                'price' => - ($totalPrice * $request->promo['discount_percetange'] / 100),
+                'quantity' => 1,
+                'name' =>
+                $request->promo['voucher_description'],
+            );
+            array_push($itemTotal, $promo);
+        } else {
+            $promo = array(
+                'id' => 0,
+                'price' => 0,
+                'quantity' => 1,
+                'name' => 'no promo'
+
+            );
+            array_push($itemTotal, $promo);
+        }
 
         $bank_transfer = array(
             "bank" => "bca"
@@ -175,7 +197,7 @@ class orderController extends Controller
         );
 
         $response = \Midtrans\CoreApi::charge($transaction_data);
-        //Add to payment 
+        //Add to payment
         $expire = Carbon::now('Asia/Jakarta')->addDays(1)->timestamp;
         $dateString = Carbon::now('Asia/Jakarta')->addDays(1);
         $payment = paymentModel::create([
@@ -187,9 +209,23 @@ class orderController extends Controller
             'expire_time_str' => $dateString,
             'payment_status' => 2,
             'snap_url' => '-',
-            'service_name' => "BCA virtual Account"
-            ,'payment_key' => $response->va_numbers[0]->va_number,
+            'service_name' => "BCA virtual Account",
+            'delivery_type' => $request->deliveryType,
+             'payment_key' => $response->va_numbers[0]->va_number,
         ]);
+        // $payment = paymentModel::create([
+        //     'users_id' => $user['id'],
+        //     'midtrans_order_id' => $response->order_id,
+        //     'amount' => $response->gross_amount,
+        //     'payment_url' => $response->transaction_id,
+        //     'expire_time_unix' => $expire,
+        //     'expire_time_str' => $dateString,
+        //     'payment_status' => 2,
+        //     'snap_url' => '-',
+        //     'service_name' => "BCA virtual Account",
+        //     'delivery_type' => $request->delivery_type,
+        //     ,'payment_key' => $response->va_numbers[0]->va_number,
+        // ]);
         $order = orderModel::create([
             'amount' => $request->amount,
             'shipping_amount' => 0,
@@ -246,6 +282,7 @@ class orderController extends Controller
         }
 
         $itemTotal = [];
+        $totalPrice = 0;
         foreach ($request->item_list as $itemList) {
             $itemTotal[] =  array(
                 'id' => $itemList['product']['id'],
@@ -253,8 +290,29 @@ class orderController extends Controller
                 'quantity' => $itemList['quantity'],
                 'name' =>  $itemList['product']['name'],
             );
+            $totalPrice += $itemList['product']['price'] * $itemList['quantity'];
+
         };
 
+        if($request->promo != null) {
+            $promo = array(
+                'id' => $request->promo['id'],
+                'price' => - ($totalPrice * $request->promo['discount_percetange'] / 100),
+                'quantity' => 1,
+                'name' =>
+                $request->promo['voucher_description'],
+            );
+            array_push($itemTotal, $promo);
+        }else{
+            $promo = array(
+                'id' =>0,
+                'price' => 0,
+                'quantity' => 1,
+                'name' => 'no promo'
+
+            );
+            array_push($itemTotal, $promo);
+        }
         $conv_store = array(
             "store" => "indomaret",
             "message" => "pembayaran freshmart"
@@ -267,9 +325,8 @@ class orderController extends Controller
             'customer_details' => $customer_details
 
         );
-
         $response = \Midtrans\CoreApi::charge($transaction_data);
-        //Add to payment 
+        //Add to payment
         $expire = Carbon::now('Asia/Jakarta')->addDays(1)->timestamp;
         $dateString = Carbon::now('Asia/Jakarta')->addDays(1);
         $payment = paymentModel::create([
@@ -350,14 +407,15 @@ class orderController extends Controller
                     "invoice" => "INV" . "/" . $o->id,
                     "amount" => $o->amount,
                     "shipping_amount" => $o->shipping_amount,
-                    "users_id" => $payment->users_id,
+                    "users_id" => $buyers->id,
                     "payment_id" => $payment->id,
                     'status' => 2,
-                    'status_str' => 'DIPROSES'
+                    'status_str' => 'DIPROSES',
+                    'delivery_type' => $payment->delivery_type
                 ]);
 
                 foreach ($o['orderItem'] as $item) {
-                 
+
 
                     transactionItem::create([
                         'transaction_id' => $transction->id,
@@ -398,8 +456,8 @@ class orderController extends Controller
             $payment->payment_status = 3;
             $payment->payment_status_str = 'cancel';
 
-            
-          
+
+
 
 
 
@@ -431,7 +489,7 @@ class orderController extends Controller
             'raw_response' => json_encode($data)
 
         ];
-
+        return true;
     }
 
 
@@ -453,8 +511,21 @@ class orderController extends Controller
         }
 
 
-        $transaction = transaction::where("users_id",$user['id'])->select('id','invoice','amount','status')->get();
-        
+        $transaction = transaction::with('transactionItem.product')->where("users_id",$user['id'])->select('id','invoice','amount','delivery_type','status')->get();
+
         return ResponseFormatter::success($transaction);
-    } 
+    }
+
+    public function editTransaction(Request $request)
+    {
+
+
+        transaction::where('invoice', $request->invoice)
+            ->update([
+                 'status' => $request->status
+            ]);
+
+
+        return ResponseFormatter::success(1,'success');
+    }
 }

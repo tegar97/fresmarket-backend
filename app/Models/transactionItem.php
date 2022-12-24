@@ -10,4 +10,8 @@ class transactionItem extends Model
     use HasFactory;
     protected $fillable = ['transaction_id', 'quantity', 'product_id','amount'];
 
+    public function product()
+    {
+        return $this->hasOne(productModel::class, 'id', 'product_id');
+    }
 }

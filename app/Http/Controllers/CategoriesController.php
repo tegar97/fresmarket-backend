@@ -28,7 +28,7 @@ class CategoriesController extends Controller
         }
 
         if ($image = $request->file('icon')) {
-            $getImageName = imageResizer::ResizeImage($image, 'icon', 'icon', 40, 40);
+            $getImageName = imageResizer::ResizeImage($image, 'icon', 'icon', 80, 80);
 
             //store your file into directory and db
 
@@ -37,7 +37,7 @@ class CategoriesController extends Controller
                 'name' => $request->name,
                 'icon' => $getImageName,
                 'bgColor' => $request->bgColor,
-            
+
             ]);
         } else {
             $categories = categoryModel::create([
@@ -52,14 +52,16 @@ class CategoriesController extends Controller
     }
     public function showCategoryWithProduct(){
         $categories = categoryModel::with("products")->select('id', 'name','icon')->get();
-        return ResponseFormatter::success($categories, 200);
+
+        return ResponseFormatter::success($categories, 'Berhasil mendapatkan data product');
 
     }
+
 
     public function all() {
         $categories = categoryModel::all();
 
-        return ResponseFormatter::success($categories, 200);
+        return ResponseFormatter::success($categories, 'berhasil');
 
 
     }

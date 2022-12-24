@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Validator;
 class productContorller extends Controller
 {
     public function create(Request $request) {
+
         $validator = Validator::make($request->all(), [
             'name' => ['required', 'string', 'max:50'],
             'image' => ['required'],
@@ -74,7 +75,7 @@ class productContorller extends Controller
         }else{
             return ResponseFormatter::error(["message" => "Category id not found"]);
         }
-        
+
 
     }
 
@@ -82,7 +83,7 @@ class productContorller extends Controller
     {
 
         $category = $request->query('category_id');
-     
+
         if($category) {
             $products = productModel::where('categories_id',$category)->get();
         }else{
@@ -90,6 +91,27 @@ class productContorller extends Controller
 
         }
 
-        return ResponseFormatter::success($products, 200);
+        return ResponseFormatter::success($products, 'Berhasil mendapatkan data product');
+    }
+
+    public function search(Request $request)
+    {
+        $query = $request->input('q');
+
+        $products = productModel::where('name', 'like', "%$query%")
+        ->orWhere('description', 'like', "%$query%")
+        ->get();
+
+
+
+        return ResponseFormatter::success($products, 'Berhasil mendapatkan data product');
+
+    }
+
+    public function productCity(Request $request) {
+        $product = $productId;
+        $city = $request->city;
+
+
     }
 }

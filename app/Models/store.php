@@ -9,6 +9,15 @@ class store extends Model
 {
     use HasFactory;
     protected $table = 'store';
-    protected $fillable = ['name', 'latitude', 'longitude'];
+    protected $fillable = [
+        'name', 'location_id', 'address', 'latitude', 'longitude'
+
+
+    ];
+
+    public function location()
+    {
+        return $this->belongsTo(Location::class);
+    }
 
 }

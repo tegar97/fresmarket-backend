@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Helper\imageResizer;
 use App\Helper\ResponseFormatter;
+use App\Models\product;
 use App\Models\productModel;
 use App\Models\recipeItemModel;
 use App\Models\recipeModel;
@@ -12,6 +13,17 @@ use Illuminate\Support\Facades\Validator;
 
 class recipeController extends Controller
 {
+
+    public function index()
+    {
+        $recipes  = recipeModel::with('recipeItem')->get();
+        return  view('pages.recipe.index', compact('recipes'));
+    }
+
+    public function store()
+    {
+
+    }
     public function create(Request $request){
         $validator = Validator::make($request->all(), [
             'title' => ['required', 'string', 'max:50'],
@@ -19,7 +31,7 @@ class recipeController extends Controller
             'image' => ['required'],
             'calori' => ['required'],
             'estimate_time' => ['required']
-         
+
         ]);
 
         if ($validator->fails()) {
@@ -52,7 +64,7 @@ class recipeController extends Controller
         ]);
         return ResponseFormatter::success($recipe, 'berhasil');
 
-        
+
 
     }
 
@@ -60,7 +72,7 @@ class recipeController extends Controller
         $validator = Validator::make($request->all(), [
             'qty' => ['required'],
             'products_id' => ['required'],
-           
+
 
         ]);
         if ($validator->fails()) {
@@ -72,7 +84,7 @@ class recipeController extends Controller
                 401
             );
         }
-        $product = productModel::where("id", $request->products_id)->first();
+        $product = product::where("id", $request->products_id)->first();
         if($product != null) {
             $recipe = recipeItemModel::create([
                 'qty' => $request->qty,
@@ -87,7 +99,7 @@ class recipeController extends Controller
 
         }
 
-      
+
     }
     public function getRecipe(){
         $recipe = recipeModel::with('recipeItem.product')->select('title','image','description','calori','level','estimateTime','id', 'step')->get();

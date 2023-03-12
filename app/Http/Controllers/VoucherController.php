@@ -9,7 +9,15 @@ use Illuminate\Http\Request;
 use Auth;
 
 class VoucherController extends Controller
+
 {
+
+    public function index()
+    {
+        $voucher = Voucher::all();
+
+        return  View('pages.voucher.index', compact('voucher'));
+    }
     public function create(Request $request) {
 
         $voucher = Voucher::where('code', $request->code)->first();

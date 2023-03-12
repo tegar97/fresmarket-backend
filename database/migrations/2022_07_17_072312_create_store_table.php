@@ -16,8 +16,11 @@ return new class extends Migration
         Schema::create('store', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string("latitude");
-            $table->string("longitude");
+            $table->string('address');
+            $table->integer('location_id')->constrained('locations')->onDelete('cascade');
+
+            $table->string('latitude');
+            $table->string('longitude');
             $table->timestamps();
         });
     }

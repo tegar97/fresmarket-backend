@@ -15,4 +15,10 @@ class recipeModel extends Model
     public function recipeItem() {
         return $this->hasMany(recipeItemModel::class, 'recipe_id','id');
     }
+
+    // products
+    public function products() {
+        return $this->belongsToMany(product::class, 'recipe_item', 'recipe_id', 'products_id');
+    }
+
 }

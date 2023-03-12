@@ -7,8 +7,9 @@ use App\Models\userAddress;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Auth;
+use Illuminate\Support\Facades\DB;
 
-class userAddressController extends Controller
+class   userAddressController extends Controller
 {
     public function create(Request $request) {
         $user = Auth::user();
@@ -53,6 +54,8 @@ class userAddressController extends Controller
             'street' => $request->street,
             'latitude' => $request->latitude,
             'longitude' => $request->longitude,
+            'recipient' => $request->recipient,
+            'message_courier' => $request->message_courier,
         ],);
 
         return ResponseFormatter::success($address, 200);
@@ -84,21 +87,30 @@ class userAddressController extends Controller
         return ResponseFormatter::success($getSelectedAddress, 'success');
 
     }
-    public function ChangeMainAddress(Request $request) {
-        $user = Auth::user();
+    public function changeMainAddress(Request $request)
+    {
+        $newAddressId = $request->input('newAddress');
+        $newAddress = userAddress::find($newAddressId);
 
-        if ($user == null) {
-            return ResponseFormatter::error("Please login for add address");
+        if (!$newAddress) {
+
+            // return
+            return response()->json([
+                'message' => 'Address not found',
+            ], 404);
         }
 
+        $oldAddress = userAddress::where('isMainAddress', 1)->where('users_id', $newAddress->users_id)->first();
 
-        $oldAddress = userAddress::where('isMainAddress', 1)->first();
-        $oldAddress['isMainAddress'] = 0;
-        $oldAddress->save();
-        $newAddress = userAddress::where('id',$request->newAddress)->first();
-        $newAddress['isMainAddress'] = 1;
-        $newAddress->save();
+        if ($oldAddress) {
+            $oldAddress->update(['isMainAddress' => 0]);
+        }
 
-        return ResponseFormatter::success($newAddress,200);
+        $newAddress->update(['isMainAddress' => 1]);
+
+        return response()->json([
+            'message' => 'Main address has been updated successfully',
+            'data' => $newAddress
+        ], 200);
     }
 }

@@ -27,7 +27,7 @@ function bubble_sort($arr)
 }
 class UsersController extends Controller
 {
-  
+
     public function login()
     {
         if (Auth::attempt(['email' => request('email'), 'password' => request('password')])) {
@@ -78,8 +78,17 @@ class UsersController extends Controller
         ],200);
     }
 
+    public function logout(Request $request)
+    {
+        $request->user()->token()->revoke();
+        return response()->json([
+            'success' => true,
+            'message' => 'Logout Success',
+        ]);
+    }
+
     public function getMe() {
-        
+
 
 
 
@@ -87,10 +96,10 @@ class UsersController extends Controller
     }
 
     public function getNearOutlet() {
-   
+
 
         $store = store::all();
-        
+
         $user = Auth::user();
 
         $adress = userAddress::where('users_id',$user['id'])->where('isMainAddress',1)->first();
@@ -116,16 +125,16 @@ class UsersController extends Controller
         }
         $keys = array_column($distance, 'distance');
         array_multisort($keys, SORT_ASC, $distance);
-        
-      
+
+
 
         return ResponseFormatter::success($distance[0]);
     }
     public function getAllListOutlet() {
-   
+
 
         $store = store::all();
-        
+
         $user = Auth::user();
 
         $adress = userAddress::where('users_id',$user['id'])->where('isMainAddress',1)->first();
@@ -151,8 +160,8 @@ class UsersController extends Controller
         }
         $keys = array_column($distance, 'distance');
         array_multisort($keys, SORT_ASC, $distance);
-        
-      
+
+
 
         return ResponseFormatter::success($distance);
     }

@@ -13,13 +13,14 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('tags_product', function (Blueprint $table) {
-            $table->id();
-            $table->integer('product_id');
-            $table->integer('tags_id');
+        Schema::table('products', function (Blueprint $table) {
 
-            $table->timestamps();
-            
+            // size image for web (thumb)
+            $table->string('image_web')->nullable()->after('image');
+
+            // size image for web (big)
+            $table->string('image_web_big')->nullable()->after('image_web');
+            //
         });
     }
 
@@ -30,6 +31,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('tags_product');
+        Schema::table('products', function (Blueprint $table) {
+            //
+        });
     }
 };

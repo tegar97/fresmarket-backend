@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Helper\ResponseFormatter;
 use App\Models\cartItemsModel;
 use App\Models\cartsModel;
+use App\Models\product;
 use App\Models\productModel;
 use Illuminate\Http\Request;
 use Auth;
@@ -16,7 +17,7 @@ class cartController extends Controller
         if($user['id'] == null) {
             return ResponseFormatter::error(['message' => "please login to continue"],500);
         }else{
-            $products = productModel::where('id',$request->products_id)->first();
+            $products = product::where('id',$request->products_id)->first();
             if($products === null) {
                 return ResponseFormatter::error(['message' => "product not found"], 404);
 
@@ -40,7 +41,7 @@ class cartController extends Controller
 
 
             }else{
-              
+
 
                 $checkproduct['qty'] =  $checkproduct['qty'] + $request->qty;
                 $checkproduct['total'] = $checkproduct['total'] + ($products['price'] * $request->qty);
@@ -53,12 +54,12 @@ class cartController extends Controller
 
 
             }
-          
-         
+
+
             return ResponseFormatter::success(['message' => "Berhasil"], 200);
 
 
-            
+
         }
     }
 }

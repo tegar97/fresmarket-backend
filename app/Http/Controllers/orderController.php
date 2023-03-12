@@ -55,6 +55,7 @@ class orderController extends Controller
         }
 
         $itemTotal = [];
+        $totalPrice = 0;
         foreach ($request->item_list as $itemList) {
             $itemTotal[] =  array(
                 'id' => $itemList['product']['id'],
@@ -62,7 +63,28 @@ class orderController extends Controller
                 'quantity' => $itemList['quantity'],
                 'name' =>  $itemList['product']['name'],
             );
+            $totalPrice += $itemList['product']['price'] * $itemList['quantity'];
         };
+
+        if ($request->promo != null) {
+            $promo = array(
+                'id' => $request->promo['id'],
+                'price' => - ($totalPrice * $request->promo['discount_percetange'] / 100),
+                'quantity' => 1,
+                'name' =>
+                $request->promo['voucher_description'],
+            );
+            array_push($itemTotal, $promo);
+        } else {
+            $promo = array(
+                'id' => 0,
+                'price' => 0,
+                'quantity' => 1,
+                'name' => 'no promo'
+
+            );
+            array_push($itemTotal, $promo);
+        }
 
         $echannel = array(
             "bill_info1" => "Payment:",
@@ -91,6 +113,8 @@ class orderController extends Controller
             'payment_status' => 2,
             'snap_url' => '-',
             'service_name' => "Mandiri",
+            'delivery_type' => $request->deliveryType,
+
             'payment_code' => $response->biller_code,
             'payment_key' => $response->bill_key,
         ]);
@@ -125,9 +149,6 @@ class orderController extends Controller
         if ($user === null) {
             return ResponseFormatter::error('Please Login for continue ', 401);
         }
-        // Get payment code
-        //Get Key
-        // $key =base64_decode(env('MIDTRANS_SERVER_KEY'));
 
         $transaction_details = array(
             'order_id'    => time(),
@@ -425,20 +446,6 @@ class orderController extends Controller
                     ]);
                 }
 
-                // if ($buyers['username_lkpp'] !== null) {
-
-
-                //         Http::withHeaders(['X-Client-Id' => env('X_Client_Id'), 'X-Client-Secret' => env('X_Client_Secret')])->post(env('TOKODARING_TRANSACTION_UPDATE'), [
-                //         'order_id' => "INV" . "/" . $o->id,
-                //         'konfirmasi_ppmse' => true,
-                //         'token' => $buyers['token_transaction_lkpp']
-
-                //     ]);
-
-
-
-                // }
-
             };
 
             $payment->payment_status = 1;
@@ -492,6 +499,108 @@ class orderController extends Controller
         return true;
     }
 
+    // snap url midtrans
+    public function snapUrl(Request $request) {
+           \Midtrans\Config::$clientKey = env('MIDTRANS_CLIENT_KEY');
+        \Midtrans\Config::$serverKey = env('MIDTRANS_SERVER_KEY');
+        \Midtrans\Config::$isProduction = (bool) env('MIDTRANS_ISPRODUCTION');
+        \Midtrans\Config::$is3ds = (bool) env('IS3DS');
+        //1.Check if user still login
+        $user = Auth::user();
+
+
+        if ($user === null) {
+            return ResponseFormatter::error('Please Login for continue ', 401);
+        }
+
+        $transaction_details = array(
+            'order_id'    => time(),
+            'gross_amount'  => $request->amount
+        );
+
+        $name = explode(' ', $user['name']);
+        if (count($name) > 1) {
+            $customer_details = array(
+                'first_name'       => $name[0],
+                'last_name'        => $name[1],
+                'email'            => $user['email'],
+                'phone'            => "08214124",
+
+            );
+        } else {
+            $customer_details = array(
+                'first_name'       => $name[0],
+                'email'            => $user['email'],
+                'phone'            => "08124124",
+
+            );
+        }
+
+        $itemTotal = [];
+        $totalPrice = 0;
+        foreach ($request->item_list as $itemList) {
+            $itemTotal[] =  array(
+                'id' => $itemList['product']['id'],
+                'price' => $itemList['product']['price'],
+                'quantity' => $itemList['quantity'],
+                'name' =>  $itemList['product']['name'],
+            );
+            $totalPrice += $itemList['product']['price'] * $itemList['quantity'];
+        };
+
+        if ($request->promo != null) {
+            $promo = array(
+                'id' => $request->promo['id'],
+                'price' => - ($totalPrice * $request->promo['discount_percetange'] / 100),
+                'quantity' => 1,
+                'name' =>
+                $request->promo['voucher_description'],
+            );
+            array_push($itemTotal, $promo);
+        } else {
+            $promo = array(
+                'id' => 0,
+                'price' => 0,
+                'quantity' => 1,
+                'name' => 'no promo'
+
+            );
+            array_push($itemTotal, $promo);
+        }
+        $transaction_data = array(
+            'transaction_details' => $transaction_details,
+            'item_details' => $itemTotal,
+            'customer_details' => $customer_details
+
+        );
+        $paymentUrl = \Midtrans\Snap::createTransaction($transaction_data);
+
+        //Add to payment
+        $expire = Carbon::now('Asia/Jakarta')->addDays(1)->timestamp;
+        $dateString = Carbon::now('Asia/Jakarta')->addDays(1);
+       paymentModel::create([
+            'users_id' => $user['id'],
+            'midtrans_order_id' =>0,
+            'amount' => $request->amount,
+            'payment_url' => $paymentUrl->redirect_url,
+            'expire_time_unix' => $expire,
+            'expire_time_str' => $dateString,
+            'payment_status' => 2,
+            'snap_url' => $paymentUrl->redirect_url,
+            'service_name' => "Snap Midtrans",
+            'delivery_type' => $request->deliveryType,
+            'payment_key' => '-',
+        ]);
+
+        return ResponseFormatter::success(
+
+            $paymentUrl);
+
+    }
+
+
+
+
 
     public function paymentCode(Request $request) {
         $transactionId = $request->query("transaction_id");
@@ -527,5 +636,22 @@ class orderController extends Controller
 
 
         return ResponseFormatter::success(1,'success');
+    }
+
+
+    public function getMyPayment(Request $request ) {
+        // get list pending payment
+
+        $user = Auth::user();
+
+        if ($user == null) {
+            return ResponseFormatter::error("Please login ");
+        }
+
+        $payment = paymentModel::where('users_id', $user['id'])->select('id', 'amount', 'payment_url', 'expire_time_unix', 'expire_time_str', 'service_name', 'payment_status', 'payment_key', 'payment_code')->get();
+
+        return ResponseFormatter::success($payment);
+
+
     }
 }

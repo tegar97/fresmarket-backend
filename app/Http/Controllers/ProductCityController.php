@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Helper\ResponseFormatter;
 use App\Models\City;
+use App\Models\location;
+use App\Models\product;
 use App\Models\ProductCity;
 use App\Models\productModel;
 use Illuminate\Http\Request;
@@ -27,8 +29,8 @@ class ProductCityController extends Controller
      */
     public function create(Request $request)
     {
-        $product = productModel::find($request->product_id);
-        $city = City::find($request->city_id);
+        $product = product::find($request->product_id);
+        $city = location::find($request->city_id);
 
         $productCity =ProductCity::create(
             [
@@ -45,7 +47,7 @@ class ProductCityController extends Controller
         $cityName = $request->query('city_name');
 
 
-        $city = City::where('name', $cityName)->first();
+        $city = location::where('city', $cityName)->first();
 
         if ($city != null) {
             return ResponseFormatter::success(true,'tersedia');
@@ -103,14 +105,14 @@ class ProductCityController extends Controller
 
 
         if($category) {
-            $products = productModel::whereHas('cities', function ($query) use ($request) {
+            $products = product::whereHas('cities', function ($query) use ($request) {
                 $city =
                     City::where('name', $request->query('city_name'))->first();
                 $query->where('city_id', $city->id);
             })->where('categories_id',$category)->get();
 
         }else{
-            $products = productModel::whereHas('cities', function ($query) use ($request) {
+            $products = product::whereHas('cities', function ($query) use ($request) {
                 $city =
                     City::where('name', $request->query('city_name'))->first();
                 $query->where('city_id', $city->id);

@@ -15,7 +15,7 @@ class LocationController extends Controller
      */
     public function index()
     {
-        $locations = Location::all();
+        $locations = location::all();
         return view('pages.locations.index')->with('locations', $locations);
     }
 
@@ -71,7 +71,7 @@ class LocationController extends Controller
     public function edit($id)
     {
 
-        $location = Location::find($id);
+        $location = location::find($id);
         return view('pages.locations.edit')->with('location', $location);
     }
 
@@ -92,7 +92,7 @@ class LocationController extends Controller
 
         ]);
 
-        $location = Location::find($id);
+        $location = location::find($id);
 
         $location->update([
             'city' => $request->city,

@@ -26,7 +26,7 @@ class ProductController extends Controller
             ->whereHas('locations', function ($query) use ($location_id) {
                 $query->where('location_id', $location_id);
             })->get() : Product::with('locations')->get();
-        $locations = Location::all();
+        $locations = location::all();
 
 
 
@@ -60,7 +60,7 @@ class ProductController extends Controller
 
 
         $categories = categoryModel::all();
-        $locations = Location::all();
+        $locations = location::all();
         return view('pages.products.create', compact('categories', 'locations'));
     }
 
@@ -174,7 +174,7 @@ class ProductController extends Controller
 
         $product = product::find($id);
         $categories = categoryModel::all();
-        $locations = Location::all();
+        $locations = location::all();
         return view('pages.products.edit', compact('product', 'categories', 'locations'));
     }
 

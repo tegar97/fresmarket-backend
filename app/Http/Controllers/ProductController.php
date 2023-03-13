@@ -6,7 +6,7 @@ use App\Helper\imageResizer;
 use App\Http\Resources\locations;
 use App\Models\Category;
 use App\Models\categoryModel;
-use App\Models\Location;
+use App\Models\location;
 use App\Models\product;
 use App\Models\product_location;
 use GuzzleHttp\Client;

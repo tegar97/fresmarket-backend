@@ -50,7 +50,7 @@ class ApiController extends Controller
             return ResponseFormatter::success(json_decode($cachedResult), 'Berhasil mendapatkan Products ');
         }
 
-        $city = Location::where('city', $cityName)->first();
+        $city = location::where('city', $cityName)->first();
 
         if (!$city) {
             return response()->json([
@@ -462,7 +462,7 @@ I hope these rules are easy to understand and will help me provide better assist
 
 
 " . $clientRequest;
-        $response = Http::post('http://localhost:5001/api/chat', [
+        $response = Http::post(env('CHAT_SERVICE'), [
             'message' => $rules
         ]);
 

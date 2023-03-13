@@ -14,8 +14,8 @@
 
             <div class="d-flex  gap-3">
                 <a href={{ route('products.create') }} class="btn btn-primary-green mb-3">Tambah Product</a>
-                        <button type="button" class="btn btn-primary-green mb-3" data-bs-toggle="modal" data-bs-target="#productGroup">
-                    Tambah Group Product
+                <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#discountModal">
+                    Add Discount
                 </button>
 
             </div>

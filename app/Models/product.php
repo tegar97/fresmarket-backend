@@ -48,7 +48,7 @@ class product extends Model
 
     public function locations()
     {
-        return $this->belongsToMany(Location::class, 'product_locations', 'product_id', 'location_id');
+        return $this->belongsToMany(location::class, 'product_locations', 'product_id', 'location_id');
     }
 
     public function product_locations()
@@ -58,7 +58,7 @@ class product extends Model
 
     public function discount()
     {
-        return $this->belongsTo(Discount::class, 'discount_id');
+        return $this->belongsTo(discount::class, 'discount_id');
     }
 
     public function groupProducts()

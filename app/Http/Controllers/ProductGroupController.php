@@ -9,7 +9,7 @@ use App\Models\product_group;
 use App\Models\productGroup;
 use Illuminate\Http\Request;
 
-class productGroupController extends Controller
+class ProductGroupController extends Controller
 {
     /**
      * Display a listing of the resource.

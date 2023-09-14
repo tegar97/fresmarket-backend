@@ -118,29 +118,29 @@ class ProductController extends Controller
 
         $product->save();
         // Request post ke api localhost:3000/upload dengan req body file
-        $client = new Client(['base_uri' =>env('IMAGE_SEARCH_SERVICE')]);
-        $response = $client->request('POST', 'upload', [
-            'headers' => [
-                'Accept' => 'application/json',
-            ],
+        // $client = new Client(['base_uri' =>env('IMAGE_SEARCH_SERVICE')]);
+        // $response = $client->request('POST', 'upload', [
+        //     'headers' => [
+        //         'Accept' => 'application/json',
+        //     ],
 
-            'multipart' => [
-                [
-                    'name' => 'file',
-                    'contents' => fopen($image, 'r'),
-                    'filename' => $imagWebpBig
-                ],
-                [
-                    'name' => 'product_id',
-                    'contents' => $product->id
-                ],
-                [
-                    'name' => 'product_name',
-                    'contents' => $product->name
-                ]
+        //     'multipart' => [
+        //         [
+        //             'name' => 'file',
+        //             'contents' => fopen($image, 'r'),
+        //             'filename' => $imagWebpBig
+        //         ],
+        //         [
+        //             'name' => 'product_id',
+        //             'contents' => $product->id
+        //         ],
+        //         [
+        //             'name' => 'product_name',
+        //             'contents' => $product->name
+        //         ]
 
-            ]
-        ]);
+        //     ]
+        // ]);
 
         // Simpan informasi lokasi produk ke dalam database
         foreach ($validatedData['locations'] as $location) {

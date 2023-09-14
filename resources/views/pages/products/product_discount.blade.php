@@ -70,22 +70,22 @@
                 <div class="modal-body">
                     <form action="" method="post">
                         @csrf
-                        {{-- <div class="mb-3">
-                            <label for="discount_name" class="form-label">Discount Name</label>
-                            <input type="text" class="form-control" id="discount_name" name="discount_name" required>
-                        </div>
+                            {{-- <div class="mb-3">
+                                <label for="discount_name" class="form-label">Discount Name</label>
+                                <input type="text" class="form-control" id="discount_name" name="discount_name" required>
+                            </div>
+                                <div class="mb-3">
+                                <label for="discount_name" class="form-label"> Discount Explanation</label>
+                                <input type="text" class="form-control" id="description" name="description" required>
+                            </div>
                             <div class="mb-3">
-                            <label for="discount_name" class="form-label"> Discount Explanation</label>
-                            <input type="text" class="form-control" id="description" name="description" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="start_date" class="form-label">Start Date</label>
-                            <input type="date" class="form-control" id="start_date" name="start_date" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="end_date" class="form-label">End Date</label>
-                            <input type="date" class="form-control" id="end_date" name="end_date" required>
-                        </div> --}}
+                                <label for="start_date" class="form-label">Start Date</label>
+                                <input type="date" class="form-control" id="start_date" name="start_date" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="end_date" class="form-label">End Date</label>
+                                <input type="date" class="form-control" id="end_date" name="end_date" required>
+                            </div> --}}
                         <div class="mb-3">
                             <label for="discount_percentage" class="form-label">Discount Percentage</label>
                             <input type="number" class="form-control" id="discount_percentage" name="discount_percentage"

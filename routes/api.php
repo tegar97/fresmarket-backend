@@ -134,7 +134,7 @@ Route::group(['prefix' => 'v1'], function () {
 
         Route::get('/myrecommendation', [ApiController::class, 'getSimilarProduct']);
 
-        
+
         Route::get('/getMostVisitProduct', [ApiController::class, 'getMostVisitProduct']);
         Route::get('/recommendRecipes', [ApiController::class, 'recommendRecipes']);
 
